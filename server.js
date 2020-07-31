@@ -1,10 +1,12 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt-nodejs');
+const cors = require('cors');
 
 const app = express();
 
 app.use(bodyParser.json());
+app.use(cors());
 const database = {
     users: [
         {
@@ -19,7 +21,7 @@ const database = {
         {
             id: '124',
             name: 'Ruth',
-            email: 'ruth@gmail.com',
+            email: 'ruth@gmail.com', 
             password: 'ruth',
             entries: 0,
             joined: new Date()
@@ -42,13 +44,6 @@ app.get('/', (req, res)=> {
 
 app.post('/signin', (req, res)=> {
 
-    bcrypt.compare("mery", '$2a$10$Qw8jA90cRxbOLFBryjL1au49nLqO4RuH700AX1yBduEEhOnks/x7S', function(err, res) {
-            console.log('first guess', res);
-        // });
-
-    bcrypt.compare("bacon", '$2a$10$Qw8jA90cRxbOLFBryjL1au49nLqO4RuH700AX1yBduEEhOnks/x7S', function(err, res) {
-        console.log('second guess', res);
-            // });
     if (req.body.email === database.users[0].email && req.body.password === database.users[0].password){
         res.json('success');
     } else {
@@ -63,7 +58,6 @@ app.post('/register', (req, res) => {
         id: '125',
         name: name,
         email: email,
-        password: password,
         entries: 0,
         joined: new Date()
 
