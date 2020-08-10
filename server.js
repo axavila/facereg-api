@@ -73,7 +73,7 @@ app.get('/profile/:id', (req, res) => {
     database.users.forEach(user => {
         if (user.id === id) {
             found = true;
-            res.json(user);
+            return res.json(user);
         }
     })
 
@@ -91,7 +91,7 @@ app.put('/image', (req, res) => {
         if (user.id === id) {
             found = true;
             user.entries++
-            res.json(user.entries);
+            return res.json(user.entries);
         }
     })
     if(!found) {
