@@ -15,9 +15,9 @@ const db = knex ({
     }
   });
 
-  db.select('*').from('users').then (data => {
-      console.log(data);
-  });
+//   db.select('*').from('users').then (data => {
+//       console.log(data);
+//   });
 
 const app = express();
 
@@ -69,46 +69,50 @@ app.post('/signin', (req, res)=> {
 
 app.post('/register', (req, res) => {
     const {email, name, password } = req.body;
-    db('users').insert({
+    const hash = bcrypt.hashSync(password);
+    
+    return db('users')
+    .returning('*')
+    .insert({
         email: email,
         name: name,
         joined: new Date()
-    }).then (console.log)
-    res.json(database.users[database.users.length-1]);
+    }).then (user => {
+        res.json(user[0]);
+    })
+        .catch(err => res.status(400).json('unable to register') )
 })
 
 
 app.get('/profile/:id', (req, res) => {
     const {id} = req.params;
-    let found =false;
+    db.select('*').from('users').where({id})
+        .then(user => {
 
-    database.users.forEach(user => {
-        if (user.id === id) {
-            found = true;
-            return res.json(user);
-        }
-    })
+            if (user.length) {
+            res.json(user[0])
+            } else {
+                res.status(400).json('not found');
+            }
+        })
 
-    if(!found) {
-        res.status(400).json('not found');
-    }
+        .catch(err => res.status(400).json('error getting user'))
+
+    // if(!found) {
+    //     res.status(400).json('not found');
+    // }
 
 })
 
 app.put('/image', (req, res) => {
     const {id} = req.body;
-    let found =false;
-
-    database.users.forEach(user => {
-        if (user.id === id) {
-            found = true;
-            user.entries++
-            return res.json(user.entries);
-        }
-    })
-    if(!found) {
-        res.status(400).json('not found');
-    }
+    db('users').where('id', '=', id)
+  .increment('entries', 1)
+  .returning('entries')
+  .then(entries => {
+      res.json(entries[0]);
+  })
+  .catch(err => res.status(400).json('unable to get entries'))
 })
 
 
